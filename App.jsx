@@ -3,6 +3,7 @@ import History from "./Pages/History";
 import {NativeRouter, Route, Routes, Link} from "react-router-native";
 import TranlationDetail from "./Pages/TranslationDetail";
 import MainLayout from "./Layouts/MainLayout";
+import CameraPage from "./Pages/CameraPage";
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
               </MainLayout>
             }
           />
+          <Route path="/camera" element={<CameraPage />} />
         </Routes>
       </SafeAreaView>
     </NativeRouter>
