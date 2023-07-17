@@ -3,26 +3,39 @@ import {View, Text, StyleSheet, Image, Pressable} from "react-native";
 import {getDataById} from "../utils/MockData";
 import {useParams} from "react-router-native";
 import Icon from "react-native-vector-icons/Feather";
-import {useNavigate} from "react-router-native";
-import ItemLanguages from "../components/ItemLanguages";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useNavigate} from 'react-router-native';
+import ItemLanguages from '../components/ItemLanguages';
 
 function TranslationDetail() {
-  const {id} = useParams();
+  const {id: paramId} = useParams();
   const [item, setItem] = useState({});
   const navigate = useNavigate();
 
+  const getTranslation = async (id) => {
+    let jsonValue = '';
+    try {
+      jsonValue = await AsyncStorage.getItem(`${id}`);
+      setItem(JSON.parse(jsonValue));
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   useEffect(() => {
-    setItem(getDataById(+id));
-  }, [id]);
+    getTranslation(paramId);
+  }, []);
 
   return (
-    <View key={item.id} style={styles.item}>
-      <View style={{display: "flex", flexDirection: "row"}}>
+    <View
+      key={item.id}
+      style={styles.item}>
+      <View style={{display: 'flex', flexDirection: 'row'}}>
         <View>
           <Text style={styles.itemTitle}>{item.title}</Text>
           <ItemLanguages
-            fromLanguage={item.fromLanguage}
-            toLanguage={item.toLanguage}
+            fromLanguage={`Braille`}
+            toLanguage={`Spanish`}
           />
         </View>
         <Pressable
@@ -30,7 +43,10 @@ function TranslationDetail() {
             navigate(`/`);
           }}
           style={styles.homeButtonPosition}>
-          <Icon style={styles.homeButton} name="arrow-left" />
+          <Icon
+            style={styles.homeButton}
+            name="arrow-left"
+          />
         </Pressable>
       </View>
 

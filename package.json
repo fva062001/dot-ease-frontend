@@ -12,14 +12,18 @@
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
     "expo": "~48.0.18",
+    "expo-camera": "~13.2.1",
+    "expo-image-picker": "~14.1.1",
+    "expo-media-library": "~15.2.3",
+    "expo-sharing": "~11.2.2",
     "expo-status-bar": "~1.4.4",
+    "expo-storage": "^48.1.0",
     "react": "18.2.0",
     "react-native": "0.71.8",
+    "react-native-uuid": "^2.0.1",
     "react-native-vector-icons": "^9.2.0",
     "react-router-native": "^6.11.2",
-    "expo-camera": "~13.2.1",
-    "expo-sharing": "~11.2.2",
-    "expo-media-library": "~15.2.3"
+    "@react-native-async-storage/async-storage": "1.17.11"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
