@@ -1,12 +1,11 @@
-import React, {useState, useEffect, useRef} from "react";
-import {StyleSheet, Text, View, SafeAreaView, Image} from "react-native";
-import {Camera} from "expo-camera";
-import {Pressable} from "react-native";
+import React, {useState, useEffect, useRef} from 'react';
+import {Text, View, SafeAreaView} from 'react-native';
+import {Camera} from 'expo-camera';
+import {Pressable} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/Feather';
 import uuid from 'react-native-uuid';
 import {useNavigate} from 'react-router-native';
-import frameIcon from '../assets/frame.png';
 import AdvertisementInfo from '../components/AdvertisementInfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TranslationResult from '../components/TranslationResult';
@@ -41,7 +40,7 @@ export default function CameraPage() {
     const file = newPhoto.base64;
     setPhoto(newPhoto);
 
-    const data = await fetch('http://127.0.0.1:5000/data', {
+    const data = await fetch('http://143.110.157.201:5000/translate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -53,6 +52,8 @@ export default function CameraPage() {
       })
       .then((data) => {
         console.log(data);
+        setTranslationDetail(data);
+        storeData({title: data.message, translationResult: data.message});
       })
       .catch((error) => {
         console.log(error);
@@ -93,7 +94,7 @@ export default function CameraPage() {
         translationResult: 'Some test data',
       };
 
-      await fetch('http://127.0.0.1:5000/translate', {
+      await fetch('http://143.110.157.201:5000/translate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -120,7 +121,7 @@ export default function CameraPage() {
   }
   if (hasCameraPermission) {
     return (
-      <SafeAreaView style={styles.cameraContainer}>
+      <SafeAreaView className="relative h-full w-full">
         {showInformation && <AdvertisementInfo />}
         <Camera
           style={{height: '100%', width: '100%'}}
@@ -128,7 +129,7 @@ export default function CameraPage() {
           ref={cameraRef}></Camera>
 
         {translationDetail === null && (
-          <View style={styles.buttonsContainer}>
+          <View className="absolute bottom-0 h-32 rounded-tl-2xl rounded-tr-2xl rounded-bl-lg rounded-br-lg z-50 w-full bg-white flex flex-row justify-around items-center">
             <Pressable onPress={showInfo}>
               <Icon
                 name="info"
@@ -150,7 +151,7 @@ export default function CameraPage() {
           </View>
         )}
         {translationDetail && (
-          <View style={styles.resultContainer}>
+          <View className="absolute h-[600px] -bottom-32 z-50">
             <TranslationResult
               handleBack={goBack}
               message={translationDetail.message}
@@ -158,7 +159,7 @@ export default function CameraPage() {
           </View>
         )}
         <Pressable
-          style={styles.homeButton}
+          className="absolute top-4 left-4 p-4 rounded-full bg-blue-500 z-50 flex items-center justify-center"
           onPress={goHome}>
           <Icon
             name="home"
@@ -169,45 +170,3 @@ export default function CameraPage() {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  cameraContainer: {
-    position: 'relative',
-    height: '100%',
-    width: '100%',
-  },
-  resultContainer: {
-    height: '80%',
-    zIndex: 50,
-    position: 'absolute',
-    bottom: -200,
-  },
-  buttonsContainer: {
-    zIndex: 50,
-    bottom: 0,
-    height: '20%',
-    borderTopLeftRadius: 50,
-    borderTopRightRadius: 50,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    position: 'absolute',
-    width: '100%',
-    backgroundColor: '#fff',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-  },
-  homeButton: {
-    position: 'absolute',
-    zIndex: 50,
-    top: 40,
-    left: 20,
-    height: 50,
-    width: 50,
-    borderRadius: 50,
-    backgroundColor: '#5865F2',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

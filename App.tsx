@@ -1,6 +1,6 @@
 import {SafeAreaView} from "react-native";
 import History from "./Pages/History";
-import {NativeRouter, Route, Routes, Link} from "react-router-native";
+import {NativeRouter, Route, Routes} from 'react-router-native';
 import TranlationDetail from "./Pages/TranslationDetail";
 import MainLayout from "./Layouts/MainLayout";
 import CameraPage from "./Pages/CameraPage";

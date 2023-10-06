@@ -1,5 +1,5 @@
-import {StyleSheet, ScrollView} from "react-native";
-import HistoryItem from "../components/HistoryItem";
+import {ScrollView} from 'react-native';
+import HistoryItem from '../components/HistoryItem';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {useEffect, useState} from 'react';
@@ -41,7 +41,7 @@ export default function History() {
   }, []);
 
   return (
-    <ScrollView style={styles.historyContainer}>
+    <ScrollView className="h-[70%] mt-[20px] max-h-[70%]">
       {data !== [] ? (
         data.map((item) => (
           <HistoryItem
@@ -57,11 +57,3 @@ export default function History() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  historyContainer: {
-    height: '70%',
-    marginTop: 20,
-    maxHeight: '70%',
-  },
-});
