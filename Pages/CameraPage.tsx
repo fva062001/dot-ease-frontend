@@ -9,6 +9,9 @@ import {useNavigate} from 'react-router-native';
 import AdvertisementInfo from '../components/AdvertisementInfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TranslationResult from '../components/TranslationResult';
+import {ImageEditor} from 'expo-image-editor';
+import DrawableImage from '../components/DrawableImage';
+import * as FileSystem from 'expo-file-system';
 
 export default function CameraPage() {
   const navigate = useNavigate();
@@ -16,7 +19,9 @@ export default function CameraPage() {
   const [translationDetail, setTranslationDetail] = useState(null);
   const [hasCameraPermission, setHasCameraPermission] = useState();
   const [showInformation, setShowInformation] = useState(false);
-  const [photo, setPhoto] = useState();
+  const [imageUri, setImageUri] = useState(undefined);
+  const [editorVisible, setEditorVisible] = useState(false);
+  const [photo, setPhoto] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -37,27 +42,8 @@ export default function CameraPage() {
     };
 
     let newPhoto = await cameraRef.current.takePictureAsync(options);
-    const file = newPhoto.base64;
-    setPhoto(newPhoto);
-
-    const data = await fetch('http://143.110.157.201:5000/translate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({file}),
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        console.log(data);
-        setTranslationDetail(data);
-        storeData({title: data.message, translationResult: data.message});
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    const file = newPhoto.uri;
+    launchEditor(file);
   };
 
   const showInfo = () => {
@@ -68,12 +54,38 @@ export default function CameraPage() {
     navigate('/');
   };
 
+  const saveEditedPhoto = async (editedPhotoUri) => {
+    try {
+      // Generate a new file path for the saved image (you can customize this as needed)
+      const newFilePath = `${FileSystem.documentDirectory}edited_photo.jpg`;
+
+      // Copy the edited photo to the new file path
+      await FileSystem.copyAsync({
+        from: editedPhotoUri,
+        to: newFilePath,
+      });
+
+      // Now, you can use newFilePath to access the saved photo
+      // For example, you can set it in state or perform any other actions with it
+      setPhoto(newFilePath);
+
+      console.log('Edited photo saved:', newFilePath);
+    } catch (error) {
+      console.error('Error saving edited photo:', error);
+    }
+  };
+
   const storeData = async (value) => {
     try {
       await AsyncStorage.setItem(`${uuid.v4()}`, JSON.stringify(value));
     } catch (e) {
       console.log(e);
     }
+  };
+
+  const launchEditor = (uri: string) => {
+    setImageUri(uri);
+    setEditorVisible(true);
   };
 
   const pickImage = async () => {
@@ -86,31 +98,8 @@ export default function CameraPage() {
     });
 
     if (!result.canceled) {
-      const file = result.base64;
-      const fileId = result.assetId;
-
-      const item = {
-        title: 'Some test data',
-        translationResult: 'Some test data',
-      };
-
-      await fetch('http://143.110.157.201:5000/translate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({file}),
-      })
-        .then((response) => {
-          return response.json();
-        })
-        .then((data) => {
-          setTranslationDetail(data);
-          storeData({title: data.message, translationResult: data.message});
-        })
-        .catch((error) => {
-          console.log('error', error);
-        });
+      const file = result.assets[0].uri;
+      launchEditor(file);
     }
   };
 
@@ -119,9 +108,19 @@ export default function CameraPage() {
   } else if (hasCameraPermission !== true) {
     return <Text>No access to camera. Please change this in settings.</Text>;
   }
-  if (hasCameraPermission) {
+  if (hasCameraPermission && photo === null) {
     return (
       <SafeAreaView className="relative h-full w-full">
+        <ImageEditor
+          visible={editorVisible}
+          onCloseEditor={() => setEditorVisible(false)}
+          imageUri={imageUri}
+          onEditingComplete={async (result) => {
+            await saveEditedPhoto(result.uri);
+            setPhoto(result.uri);
+          }}
+          mode="crop-only"
+        />
         {showInformation && <AdvertisementInfo />}
         <Camera
           style={{height: '100%', width: '100%'}}
@@ -168,5 +167,8 @@ export default function CameraPage() {
         </Pressable>
       </SafeAreaView>
     );
+  }
+  if (photo !== null) {
+    return <DrawableImage source={{uri: photo}} />;
   }
 }
