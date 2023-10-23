@@ -117,7 +117,6 @@ export default function CameraPage() {
           imageUri={imageUri}
           onEditingComplete={async (result) => {
             await saveEditedPhoto(result.uri);
-            setPhoto(result.uri);
           }}
           mode="crop-only"
         />

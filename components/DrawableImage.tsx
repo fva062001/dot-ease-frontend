@@ -4,9 +4,14 @@ import {Svg, Line} from 'react-native-svg';
 import Icon from 'react-native-vector-icons/Feather';
 import * as FileSystem from 'expo-file-system';
 
+
+const screenWidth = Dimensions.get('window').width;
+
 function DrawableImage({source}) {
   const [lines, setLines] = useState([]);
   const [viewHeight, setViewHeight] = useState(0);
+  const [imageResponse, setImageResponse] = useState(null);
+  const [dimensions, setDimensions] = useState({width: 0, height: 0});
 
   const handlePress = (event) => {
     const {locationX} = event.nativeEvent;
@@ -17,10 +22,24 @@ function DrawableImage({source}) {
     setLines([]);
   };
 
-  const handleConfirm = async () => {
+  const getBase64FromAssetURI = async (assetUri) => {
     try {
-      console.log(source.base64);
+      const fileData = await FileSystem.readAsStringAsync(assetUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      return fileData;
+    } catch (error) {
+      console.error('Error reading asset data:', error);
+      return null;
+    }
+  };
 
+  const handleConfirm = async () => {
+    const base64 = await getBase64FromAssetURI(source.uri);
+    console.log(screenWidth);
+    console.log(lines[0]);
+
+    try {
       const response = await fetch(
         'http://143.110.157.201:5000/translate/segmented',
         {
@@ -29,7 +48,9 @@ function DrawableImage({source}) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            file: source.base64,
+            file: base64,
+            base64: true,
+            viewWidth: screenWidth,
             startingPoint: Math.floor(lines[0]),
           }),
         }
@@ -37,6 +58,7 @@ function DrawableImage({source}) {
 
       if (response.ok) {
         const responseData = await response.json();
+        console.log(responseData);
       } else {
         console.error('HTTP error:', response.status, response.statusText);
       }
@@ -58,7 +80,6 @@ function DrawableImage({source}) {
       <View className="w-full h-[30%] border-dashed border-gray-400 border-y-[1px]  z-10">
         <Image
           onLayout={(event) => {
-            // Get the height of the view when it is laid out
             const {height} = event.nativeEvent.layout;
             setViewHeight(height);
           }}
