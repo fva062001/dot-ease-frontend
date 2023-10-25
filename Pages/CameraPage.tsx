@@ -11,7 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import TranslationResult from '../components/TranslationResult';
 import {ImageEditor} from 'expo-image-editor';
 import DrawableImage from '../components/DrawableImage';
-import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 
 export default function CameraPage() {
   const navigate = useNavigate();
@@ -26,6 +26,7 @@ export default function CameraPage() {
   useEffect(() => {
     (async () => {
       const cameraPermission = await Camera.requestCameraPermissionsAsync();
+      const mediaPermission = await MediaLibrary.requestPermissionsAsync();
       setHasCameraPermission(cameraPermission.granted === true);
     })();
   }, []);
@@ -46,6 +47,12 @@ export default function CameraPage() {
     launchEditor(file);
   };
 
+  const handleTransition = (translation) => {
+    setPhoto(null);
+    setTranslationDetail(translation);
+    storeData(translation);
+  };
+
   const showInfo = () => {
     setShowInformation((prev) => !prev);
   };
@@ -55,24 +62,16 @@ export default function CameraPage() {
   };
 
   const saveEditedPhoto = async (editedPhotoUri) => {
-    try {
-      // Generate a new file path for the saved image (you can customize this as needed)
-      const newFilePath = `${FileSystem.documentDirectory}edited_photo.jpg`;
-
-      // Copy the edited photo to the new file path
-      await FileSystem.copyAsync({
-        from: editedPhotoUri,
-        to: newFilePath,
+    const asset = await MediaLibrary.createAssetAsync(editedPhotoUri);
+    console.log(asset);
+    MediaLibrary.createAlbumAsync('Expo', asset)
+      .then(() => {
+        console.log('Album created!');
+      })
+      .catch((error) => {
+        console.log('err', error);
       });
-
-      // Now, you can use newFilePath to access the saved photo
-      // For example, you can set it in state or perform any other actions with it
-      setPhoto(newFilePath);
-
-      console.log('Edited photo saved:', newFilePath);
-    } catch (error) {
-      console.error('Error saving edited photo:', error);
-    }
+    setPhoto(asset.uri);
   };
 
   const storeData = async (value) => {
@@ -168,6 +167,11 @@ export default function CameraPage() {
     );
   }
   if (photo !== null) {
-    return <DrawableImage source={{uri: photo}} />;
+    return (
+      <DrawableImage
+        handleBack={handleTransition}
+        source={{uri: photo}}
+      />
+    );
   }
 }

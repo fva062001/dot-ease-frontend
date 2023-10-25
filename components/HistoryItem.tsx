@@ -14,7 +14,7 @@ function HistoryItem({item}) {
       key={item.id}
       className="my-[10px] mx-[20px] px-[10px] py-[20px] rounded-2xl bg-[#5865f2]">
       <Text className="text-[20px] font-bold mb-[8px] mx-[10px] text-white">
-        {item.title}
+        {item.message}
       </Text>
       <ItemLanguages
         fromLanguage={'Braille'}

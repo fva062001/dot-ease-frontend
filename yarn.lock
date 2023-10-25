@@ -5767,7 +5767,7 @@ react-is@^17.0.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
-react-native-codegen@^0.71.5:
+react-native-codegen@^0.71.6:
   version "0.71.6"
   resolved "https://registry.yarnpkg.com/react-native-codegen/-/react-native-codegen-0.71.6.tgz#481a610c3af9135b09e1e031da032e7270e0cc1b"
   integrity sha512-e5pR4VldIhEaFctfSAEgxbng0uG4gjBQxAHes3EKLdosH/Av90pQfSe9IDVdFIngvNPzt8Y14pNjrtqov/yNIg==
@@ -5816,10 +5816,10 @@ react-native-uuid@^2.0.1:
   resolved "https://registry.yarnpkg.com/react-native-uuid/-/react-native-uuid-2.0.1.tgz#ed4e2dfb1683eddb66967eb5dca140dfe1abddb9"
   integrity sha512-cptnoIbL53GTCrWlb/+jrDC6tvb7ypIyzbXNJcpR3Vab0mkeaaVd5qnB3f0whXYzS+SMoSQLcUUB0gEWqkPC0g==
 
-react-native-vector-icons@^9.2.0:
-  version "9.2.0"
-  resolved "https://registry.yarnpkg.com/react-native-vector-icons/-/react-native-vector-icons-9.2.0.tgz#3c0c82e95defd274d56363cbe8fead8d53167ebd"
-  integrity sha512-wKYLaFuQST/chH3AJRjmOLoLy3JEs1JR6zMNgTaemFpNoXs0ztRnTxcxFD9xhX7cJe1/zoN5BpQYe7kL0m5yyA==
+react-native-vector-icons@^10.0.0:
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-vector-icons/-/react-native-vector-icons-10.0.0.tgz#0f031f7717f76f0a397f725de9b5a47ec87862e9"
+  integrity sha512-efMOVbZIebY8RszZPzPBoXi9pvD/NFYmjIDYxRoc9LYSzV8rMJtT8FfcO2hPu85Rn2x9xktha0+qn0B7EqMAcQ==
   dependencies:
     prop-types "^15.7.2"
     yargs "^16.1.1"
@@ -5837,10 +5837,10 @@ react-native-web@~0.18.10:
     postcss-value-parser "^4.2.0"
     styleq "^0.1.2"
 
-react-native@0.71.13:
-  version "0.71.13"
-  resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.71.13.tgz#e20007904f5f8a4b8b1faf1e60f0d7eb9f578ed6"
-  integrity sha512-zEa69YQNLdv8Sf5Pn0CNDB1K9eGuNy1KoMNxXlrZ89JZ8d02b5hihZIoOCCIwhH+iPgslYwr3ZoGd3AY6FMrgw==
+react-native@0.71.14:
+  version "0.71.14"
+  resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.71.14.tgz#df12b405a7913b736de01b0347af14e4be7bf324"
+  integrity sha512-7uhzas8aKpU2EARhlONt7yiclh+7PXEOJk469ewpQyId8Owq5WNtZvQm/z3k4mHUriMeQ37vgSGkOInSKcCazw==
   dependencies:
     "@jest/create-cache-key-function" "^29.2.1"
     "@react-native-community/cli" "10.2.4"
@@ -5867,7 +5867,7 @@ react-native@0.71.13:
     pretty-format "^26.5.2"
     promise "^8.3.0"
     react-devtools-core "^4.26.1"
-    react-native-codegen "^0.71.5"
+    react-native-codegen "^0.71.6"
     react-native-gradle-plugin "^0.71.19"
     react-refresh "^0.4.0"
     react-shallow-renderer "^16.15.0"

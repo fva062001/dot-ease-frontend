@@ -6,14 +6,23 @@ import {useEffect, useState} from 'react';
 import Toast from 'react-native-toast-message';
 import noHistory from '../assets/noHistoryAvatar.jpg';
 import {useNavigate} from 'react-router-native';
+import {AntDesign} from '@expo/vector-icons';
 
 export default function History() {
   const [data, setData] = useState([]);
 
   const getMultiple = async (keys) => {
-    let values;
     try {
-      values = await AsyncStorage.multiGet(keys).then(() => {});
+      const values = await AsyncStorage.multiGet(keys).then((data) => {
+        const allTranslations = data.map((element) => {
+          const itemObject = {
+            id: element[0],
+            ...JSON.parse(element[1]),
+          };
+          return itemObject;
+        });
+        setData(allTranslations);
+      });
     } catch (e) {
       Toast.show({
         type: 'error',
@@ -25,35 +34,24 @@ export default function History() {
         bottomOffset: 40,
       });
     }
-
-    const allAvailableTranslations = [];
-    values.forEach((element) => {
-      const itemObject = {
-        id: element[0],
-        ...JSON.parse(element[1]),
-      };
-      allAvailableTranslations.push(itemObject);
-    });
-    setData(allAvailableTranslations);
   };
   const navigate = useNavigate();
 
   const getAllKeys = async () => {
-    let keys = [];
     try {
-      keys = await AsyncStorage.getAllKeys();
+      const keys = await AsyncStorage.getAllKeys();
+      getMultiple(keys);
     } catch (e) {
       console.log(e);
     }
-    getMultiple(keys);
   };
 
   useEffect(() => {
     getAllKeys();
-  }, []);
+  }, [data]);
 
   return (
-    <>
+    <View className="relative h-full w-full">
       {data.length > 0 ? (
         <>
           <ScrollView className="h-[70%] mt-[20px] max-h-[70%]">
@@ -64,19 +62,21 @@ export default function History() {
               />
             ))}
           </ScrollView>
-          <Pressable
-            className="bg-[#06283d] items-center rounded-full p-6 mt-6 mx-auto"
-            title={''}
-            onPress={() => {
-              navigate('/camera');
-            }}>
-            <Icon
-              style={{marginHorizontal: 5, marginVertical: 5}}
-              name="camera"
-              size={20}
-              color="white"
-            />
-          </Pressable>
+
+          <View className="absolute flex-row justify-center bottom-0 w-full">
+            <Pressable
+              className=" bg-[#06283d] rounded-full flex-row justify-center items-center p-6 h-20 w-20"
+              title={''}
+              onPress={() => {
+                navigate('/camera');
+              }}>
+              <AntDesign
+                name="camera"
+                size={24}
+                color="white"
+              />
+            </Pressable>
+          </View>
         </>
       ) : (
         <View className="relative flex justify-center items-center h-full w-10/12 mx-auto space-y-4">
@@ -101,6 +101,6 @@ export default function History() {
           </Pressable>
         </View>
       )}
-    </>
+    </View>
   );
 }

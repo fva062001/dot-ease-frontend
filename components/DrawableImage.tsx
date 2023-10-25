@@ -7,11 +7,12 @@ import * as FileSystem from 'expo-file-system';
 
 const screenWidth = Dimensions.get('window').width;
 
-function DrawableImage({source}) {
+function DrawableImage({source, handleBack}) {
   const [lines, setLines] = useState([]);
   const [viewHeight, setViewHeight] = useState(0);
   const [imageResponse, setImageResponse] = useState(null);
   const [dimensions, setDimensions] = useState({width: 0, height: 0});
+  const [segmentationPreview, setSegmentationPreview] = useState(null);
 
   const handlePress = (event) => {
     const {locationX} = event.nativeEvent;
@@ -34,95 +35,156 @@ function DrawableImage({source}) {
     }
   };
 
-  const handleConfirm = async () => {
+  const handleCheck = async () => {
     const base64 = await getBase64FromAssetURI(source.uri);
-    console.log(screenWidth);
-    console.log(lines[0]);
+    await fetch('http://143.110.157.201:5000/confirm', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        file: base64,
+        base64: true,
+        viewWidth: screenWidth,
+        startingPoint: Math.floor(lines[0]),
+      }),
+    })
+      .then((e) => {
+        return e.json();
+      })
+      .then((data) => {
+        setSegmentationPreview(`data:image/png;base64,${data.image}`);
+        console.log(data);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
 
-    try {
-      const response = await fetch(
-        'http://143.110.157.201:5000/translate/segmented',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            file: base64,
-            base64: true,
-            viewWidth: screenWidth,
-            startingPoint: Math.floor(lines[0]),
-          }),
-        }
-      );
+  const handleRetrySegmentation = () => {
+    setSegmentationPreview(null);
+    setLines([]);
+  };
 
-      if (response.ok) {
-        const responseData = await response.json();
-        console.log(responseData);
-      } else {
-        console.error('HTTP error:', response.status, response.statusText);
-      }
-    } catch (error) {
-      console.error('An error occurred:', error);
-    }
+  const handleTraduction = async () => {
+    const base64 = await getBase64FromAssetURI(source.uri);
+    await fetch('http://143.110.157.201:5000/translate/segmented', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        file: base64,
+        viewWidth: screenWidth,
+        startingPoint: Math.floor(lines[0]),
+      }),
+    })
+      .then((e) => {
+        return e.json();
+      })
+      .then((data) => {
+        console.log(data);
+        handleBack(data);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   };
 
   return (
-    <View className="relative bg-black w-full h-full flex justify-center items-center">
-      <Pressable
-        onPress={deleteLine}
-        className="absolute p-2 rounded-full bg-white z-10 top-20 right-8">
-        <Icon
-          name="trash"
-          style={{color: 'black', fontSize: 35, fontWeight: 'bold'}}
-        />
-      </Pressable>
-      <View className="w-full h-[30%] border-dashed border-gray-400 border-y-[1px]  z-10">
-        <Image
-          onLayout={(event) => {
-            const {height} = event.nativeEvent.layout;
-            setViewHeight(height);
-          }}
-          className="w-full h-full"
-          source={{uri: source.uri}}
-          resizeMode="contain"
-        />
-      </View>
-      <Pressable
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: 0,
-          marginLeft: 'auto',
-          width: '100%',
-          height: viewHeight,
-          zIndex: 20,
-          marginTop: -viewHeight / 2,
-        }}
-        onTouchEnd={handlePress}>
-        <Svg>
-          {lines.map((x, index) => (
-            <Line
-              key={index}
-              x1={x}
-              y1="0"
-              x2={x}
-              y2={viewHeight}
-              stroke="red"
-              strokeWidth="2"
+    <>
+      {segmentationPreview !== null && (
+        <View className="relative bg-black w-full h-full flex justify-center items-center">
+          <View className="w-full h-[30%] border-dashed border-gray-400 border-y-[1px]  z-10">
+            <Image
+              onLayout={(event) => {
+                const {height} = event.nativeEvent.layout;
+                setViewHeight(height);
+              }}
+              className="w-full h-full"
+              source={{uri: segmentationPreview}}
+              resizeMode="contain"
             />
-          ))}
-        </Svg>
-      </Pressable>
-
-      <View className="flex justify-center items-center bg-white absolute h-[15%] w-full bottom-0 rounded-tr-[20px] rounded-tl-[20px]">
-        <Pressable
-          className="rounded-[10px] bg-[#5965f2] px-8 py-4"
-          onPress={handleConfirm}>
-          <Text className="text-xl text-white">Confirmar Selección</Text>
-        </Pressable>
-      </View>
-    </View>
+          </View>
+          <View className="flex justify-center items-center bg-white absolute h-[20%] space-y-4 w-full bottom-0 rounded-tr-[20px] rounded-tl-[20px]">
+            <Pressable
+              className="w-11/12 rounded-[10px] bg-[#5965f2] px-8 py-4"
+              onPress={handleRetrySegmentation}>
+              <Text className="text-xl text-center text-white">
+                Intentar Nuevamente
+              </Text>
+            </Pressable>
+            <Pressable
+              className="w-11/12 rounded-[10px] bg-[#5965f2] px-8 py-4"
+              onPress={handleTraduction}>
+              <Text className="text-xl text-center text-white">
+                Realizar Traducción
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
+      {segmentationPreview === null && (
+        <View className="relative bg-black w-full h-full flex justify-center items-center">
+          <>
+            <Pressable
+              onPress={deleteLine}
+              className="absolute p-2 rounded-full bg-white z-10 top-20 right-8">
+              <Icon
+                name="trash"
+                style={{color: 'black', fontSize: 35, fontWeight: 'bold'}}
+              />
+            </Pressable>
+            <View className="w-full h-[30%] border-dashed border-gray-400 border-y-[1px]  z-10">
+              <Image
+                onLayout={(event) => {
+                  const {height} = event.nativeEvent.layout;
+                  setViewHeight(height);
+                }}
+                className="w-full h-full"
+                source={{uri: source.uri}}
+                resizeMode="contain"
+              />
+            </View>
+            <Pressable
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: 0,
+                marginLeft: 'auto',
+                width: '100%',
+                height: viewHeight,
+                zIndex: 20,
+                marginTop: -viewHeight / 2,
+              }}
+              onTouchEnd={handlePress}>
+              <Svg>
+                {lines.map((x, index) => (
+                  <Line
+                    key={index}
+                    x1={x}
+                    y1="0"
+                    x2={x}
+                    y2={viewHeight}
+                    stroke="red"
+                    strokeWidth="2"
+                  />
+                ))}
+              </Svg>
+            </Pressable>
+            <View className="flex justify-center items-center bg-white absolute h-[15%] w-full bottom-0 rounded-tr-[20px] rounded-tl-[20px]">
+              <Pressable
+                className="rounded-[10px] bg-[#5965f2] px-8 py-4"
+                onPress={handleCheck}>
+                <Text className="text-xl text-white">
+                  Verificar Segmentación
+                </Text>
+              </Pressable>
+            </View>
+          </>
+        </View>
+      )}
+    </>
   );
 }
 

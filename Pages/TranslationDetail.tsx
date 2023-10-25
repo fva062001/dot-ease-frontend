@@ -13,9 +13,9 @@ function TranslationDetail() {
   const navigate = useNavigate();
 
   const getTranslation = async (id) => {
-    let jsonValue = '';
     try {
-      jsonValue = await AsyncStorage.getItem(`${id}`);
+      const jsonValue = await AsyncStorage.getItem(`${id}`);
+      console.log(jsonValue);
       setItem(JSON.parse(jsonValue));
     } catch (e) {
       console.log(e);
@@ -33,7 +33,7 @@ function TranslationDetail() {
       <View className="flex flex-row">
         <View>
           <Text className="text-2xl font-bold mb-[8px] mx-[10px] text-white">
-            {item.title}
+            {item.message}
           </Text>
           <ItemLanguages
             fromLanguage={`Braille`}
@@ -54,7 +54,7 @@ function TranslationDetail() {
 
       <View className="mx-[15px] my-[40px]">
         <Text className="text-white text-justify leading-[25px] text-lg">
-          {item.translationResult}
+          {item.message}
         </Text>
       </View>
     </View>
