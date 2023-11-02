@@ -2,8 +2,8 @@ import React, {useState} from 'react';
 import {View, Image, Dimensions, Pressable, Text} from 'react-native';
 import {Svg, Line} from 'react-native-svg';
 import Icon from 'react-native-vector-icons/Feather';
+import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
-
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -25,10 +25,16 @@ function DrawableImage({source, handleBack}) {
 
   const getBase64FromAssetURI = async (assetUri) => {
     try {
-      const fileData = await FileSystem.readAsStringAsync(assetUri, {
+      const fileData = await MediaLibrary.getAssetInfoAsync(assetUri).then(
+        (e) => {
+          const fileUrl = e.localUri;
+          return fileUrl;
+        }
+      );
+      const base64 = await FileSystem.readAsStringAsync(fileData, {
         encoding: FileSystem.EncodingType.Base64,
       });
-      return fileData;
+      return base64;
     } catch (error) {
       console.error('Error reading asset data:', error);
       return null;
@@ -36,7 +42,7 @@ function DrawableImage({source, handleBack}) {
   };
 
   const handleCheck = async () => {
-    const base64 = await getBase64FromAssetURI(source.uri);
+    const base64 = await getBase64FromAssetURI(source.uri.id);
     await fetch('http://143.110.157.201:5000/confirm', {
       method: 'POST',
       headers: {
@@ -53,8 +59,8 @@ function DrawableImage({source, handleBack}) {
         return e.json();
       })
       .then((data) => {
-        setSegmentationPreview(`data:image/png;base64,${data.image}`);
         console.log(data);
+        setSegmentationPreview(`data:image/png;base64,${data.image}`);
       })
       .catch((e) => {
         console.log(e);
@@ -142,7 +148,7 @@ function DrawableImage({source, handleBack}) {
                   setViewHeight(height);
                 }}
                 className="w-full h-full"
-                source={{uri: source.uri}}
+                source={{uri: source.uri.uri}}
                 resizeMode="contain"
               />
             </View>

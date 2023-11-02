@@ -63,15 +63,14 @@ export default function CameraPage() {
 
   const saveEditedPhoto = async (editedPhotoUri) => {
     const asset = await MediaLibrary.createAssetAsync(editedPhotoUri);
-    console.log(asset);
     MediaLibrary.createAlbumAsync('Expo', asset)
       .then(() => {
-        console.log('Album created!');
+        console.log(asset);
       })
       .catch((error) => {
         console.log('err', error);
       });
-    setPhoto(asset.uri);
+    setPhoto(asset);
   };
 
   const storeData = async (value) => {
