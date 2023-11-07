@@ -63,14 +63,10 @@ export default function CameraPage() {
 
   const saveEditedPhoto = async (editedPhotoUri) => {
     const asset = await MediaLibrary.createAssetAsync(editedPhotoUri);
-    console.log(asset);
     MediaLibrary.createAlbumAsync('Expo', asset)
       .then(() => {
-        console.log('Album created!');
       })
-      .catch((error) => {
-        console.log('err', error);
-      });
+      .catch((error) => {});
     setPhoto(asset.uri);
   };
 
@@ -78,7 +74,6 @@ export default function CameraPage() {
     try {
       await AsyncStorage.setItem(`${uuid.v4()}`, JSON.stringify(value));
     } catch (e) {
-      console.log(e);
     }
   };
 
@@ -102,11 +97,6 @@ export default function CameraPage() {
     }
   };
 
-  if (hasCameraPermission === undefined) {
-    return <Text>Requesting permissions...</Text>;
-  } else if (hasCameraPermission !== true) {
-    return <Text>No access to camera. Please change this in settings.</Text>;
-  }
   if (hasCameraPermission && photo === null) {
     return (
       <SafeAreaView className="relative h-full w-full">
@@ -120,10 +110,12 @@ export default function CameraPage() {
           mode="crop-only"
         />
         {showInformation && <AdvertisementInfo />}
-        <Camera
-          style={{height: '100%', width: '100%'}}
-          ratio={'16:9'}
-          ref={cameraRef}></Camera>
+        {hasCameraPermission && (
+          <Camera
+            style={{height: '100%', width: '100%'}}
+            ratio={'16:9'}
+            ref={cameraRef}></Camera>
+        )}
 
         {translationDetail === null && (
           <View className="absolute bottom-0 h-32 rounded-tl-2xl rounded-tr-2xl rounded-bl-lg rounded-br-lg z-50 w-full bg-white flex flex-row justify-around items-center">

@@ -15,11 +15,8 @@ function TranslationDetail() {
   const getTranslation = async (id) => {
     try {
       const jsonValue = await AsyncStorage.getItem(`${id}`);
-      console.log(jsonValue);
       setItem(JSON.parse(jsonValue));
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
 
   useEffect(() => {
