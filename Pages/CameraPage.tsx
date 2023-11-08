@@ -67,7 +67,7 @@ export default function CameraPage() {
       .then(() => {
       })
       .catch((error) => {});
-    setPhoto(asset.uri);
+      setPhoto(asset);
   };
 
   const storeData = async (value) => {

@@ -41,9 +41,7 @@ export default function History() {
     try {
       const keys = await AsyncStorage.getAllKeys();
       getMultiple(keys);
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
 
   useEffect(() => {

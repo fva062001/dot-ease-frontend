@@ -58,7 +58,7 @@ function DrawableImage({source, handleBack}) {
       return;
     }
     setIsLoading(true);
-    const base64 = await getBase64FromAssetURI(source.uri.id);
+    const base64 = await getBase64FromAssetURI(source.uri);
     await fetch('http://143.110.157.201:5000/confirm', {
       method: 'POST',
       headers: {
@@ -75,7 +75,6 @@ function DrawableImage({source, handleBack}) {
         return e.json();
       })
       .then((data) => {
-        console.log(data);
         setSegmentationPreview(`data:image/png;base64,${data.image}`);
         setIsLoading(false);
       })
@@ -159,7 +158,7 @@ function DrawableImage({source, handleBack}) {
               </Text>
             </Pressable>
             <Pressable
-              className="w-11/12 rounded-[10px] bg-[#5965f2] px-8 py-4 flex-row space-x-4"
+              className="w-11/12 rounded-[10px] bg-[#5965f2] px-8 py-4 space-x-4 flex flex-row justify-center items-center"
               onPress={handleTraduction}>
               <Text className="text-xl text-center text-white">
                 Realizar Traducción
