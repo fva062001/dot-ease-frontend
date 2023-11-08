@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {View, Image, Dimensions, Pressable, Text} from 'react-native';
 import {Svg, Line} from 'react-native-svg';
 import Icon from 'react-native-vector-icons/Feather';
+import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
 import {ActivityIndicator} from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -27,10 +28,16 @@ function DrawableImage({source, handleBack}) {
 
   const getBase64FromAssetURI = async (assetUri) => {
     try {
-      const fileData = await FileSystem.readAsStringAsync(assetUri, {
+      const fileData = await MediaLibrary.getAssetInfoAsync(assetUri).then(
+        (e) => {
+          const fileUrl = e.localUri;
+          return fileUrl;
+        }
+      );
+      const base64 = await FileSystem.readAsStringAsync(fileData, {
         encoding: FileSystem.EncodingType.Base64,
       });
-      return fileData;
+      return base64;
     } catch (error) {
       console.error('Error reading asset data:', error);
       return null;
@@ -51,7 +58,7 @@ function DrawableImage({source, handleBack}) {
       return;
     }
     setIsLoading(true);
-    const base64 = await getBase64FromAssetURI(source.uri);
+    const base64 = await getBase64FromAssetURI(source.uri.id);
     await fetch('http://143.110.157.201:5000/confirm', {
       method: 'POST',
       headers: {
@@ -68,6 +75,7 @@ function DrawableImage({source, handleBack}) {
         return e.json();
       })
       .then((data) => {
+        console.log(data);
         setSegmentationPreview(`data:image/png;base64,${data.image}`);
         setIsLoading(false);
       })
@@ -181,7 +189,7 @@ function DrawableImage({source, handleBack}) {
                   setViewHeight(height);
                 }}
                 className="w-full h-full"
-                source={{uri: source.uri}}
+                source={{uri: source.uri.uri}}
                 resizeMode="contain"
               />
             </View>
